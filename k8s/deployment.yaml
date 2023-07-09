@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
     name: config-service
-    namespace: polar
     labels:
         app: config-service
 spec:
@@ -15,11 +14,27 @@ spec:
             name: config-service
             labels:
                 app: config-service
+            annotations:
+                prometheus.io/scrape: "true"
+                prometheus.io/path: /actuator/prometheus
+                prometheus.io/port: "8888"
         spec:
             containers:
                 -   name: config-service
                     image: config-service
                     imagePullPolicy: IfNotPresent
+                    livenessProbe:
+                        httpGet:
+                            path: /actuator/health/liveness
+                            port: 8888
+                        initialDelaySeconds: 10
+                        periodSeconds: 5
+                    readinessProbe:
+                        httpGet:
+                            port: 8888
+                            path: /actuator/health/readiness
+                        initialDelaySeconds: 5
+                        periodSeconds: 20
                     lifecycle:
                         preStop:
                             exec:

@@ -21,3 +21,21 @@ spring:
                     clone-on-start: true
                     timeout: 5
                     force-pull: true
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: refresh, health, prometheus
+    endpoint:
+        health:
+            show-details: always
+            show-components: always
+            probes:
+                enabled: true
+    metrics:
+        tags:
+            application: ${spring.application.name}
+logging:
+    pattern:
+        level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"
